@@ -1,5 +1,5 @@
 // Import the WebSocketServer class from the "ws" library
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 
 // Create a new WebSocket server instance on port 8000
 const wss = new WebSocketServer({ port: 8000 });
@@ -11,8 +11,8 @@ wss.on("connection", function (socket) {
     const data = e.toString().trim();
     // Check if the message received is "ping"
     console.log(data);
-    console.log(data === "ping");
-    if (data === "ping") {
+    console.log(data === "jatin");
+    if (data === "jatin") {
       // Respond with "pong" to the client
       socket.send("pong");
     }
