@@ -1,13 +1,19 @@
+// Import the WebSocketServer class from the "ws" library
 import { WebSocketServer } from "ws";
 
-const wss = new WebSocketServer({ port: 8080 });
+// Create a new WebSocket server instance on port 8000
+const wss = new WebSocketServer({ port: 8000 });
 
-console.log("hi");
+// Add an event listener for new client connections
 wss.on("connection", function (socket) {
-  console.log("user connected");
-
+  // Add an event listener for messages received from the connected client
   socket.on("message", (e) => {
-    if (e.toString() === "ping") {
+    const data = e.toString().trim();
+    // Check if the message received is "ping"
+    console.log(data);
+    console.log(data === "ping");
+    if (data === "ping") {
+      // Respond with "pong" to the client
       socket.send("pong");
     }
   });
