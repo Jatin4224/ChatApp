@@ -1,19 +1,41 @@
 import { WebSocketServer, WebSocket } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
-let userCount = 0;
-let allSockets: WebSocket[] = [];
+
+interface User {
+  socket: WebSocket;
+  room: string;
+}
+
+let allSockets: User[] = [];
+
 wss.on("connection", (socket) => {
-  allSockets.push(socket);
-  userCount = userCount + 1;
-  console.log("user connected " + userCount);
+  socket.on("message", (data) => {
+    try {
+      // Ensure the message is a string before parsing
+      const message = data.toString();
+      const parsedMessage = JSON.parse(message);
 
-  socket.on("message", (message) => {
-    console.log("message received" + message.toString());
+      if (parsedMessage.type === "join") {
+        allSockets.push({
+          socket,
+          room: parsedMessage.payload.roomId,
+        });
+      }
 
-    for (let i = 0; i < allSockets.length; i++) {
-      const s = allSockets[i];
-      s.send(message.toString() + "send from the server");
+      if (parsedMessage.type === "chat") {
+        const currentUser = allSockets.find((x) => x.socket === socket);
+        if (!currentUser) return; // User not found
+
+        const currentUserRoom = currentUser.room;
+
+        // Broadcast message to all users in the same room
+        allSockets
+          .filter((user) => user.room === currentUserRoom)
+          .forEach((user) => user.socket.send(parsedMessage.payload.message));
+      }
+    } catch (error) {
+      console.error("Invalid JSON received:", data);
     }
   });
 });
